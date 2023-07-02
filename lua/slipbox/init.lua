@@ -8,4 +8,6 @@ function M.insert_date()
     vim.api.nvim_win_set_cursor(0, current_pos)
 end
 
+vim.keymap.set('n', '<Leader>il', '<CMD>lua insert_date()<CR>', {noremap=true, silent=true})
+
 return M
