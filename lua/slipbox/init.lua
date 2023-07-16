@@ -1,13 +1,32 @@
 local vim = vim
-local M = {}
 
-function M.insert_date()
-    local date = os.date('%Y%m%d%H%M')
-    local current_pos = vim.api.nvim_win_get_cursor(0)
-    vim.api.nvim_put({date}, "b", true, true)
-    vim.api.nvim_win_set_cursor(0, current_pos)
+local function in_directory(target)
+    -- check if nvim loaded in parent dir
+    local exp_target = vim.fn.expand(target)
+    local current = vim.fn.getcwd() .. '/'
+
+    return current:find(exp_target, 1, true)
 end
 
-vim.api.set_keymap.set('n', '<Leader>id', '<CMD>lua require("slipbox").insert_date()<CR>', {noremap=true, silent=true})
+-- if buffer is opened in `target` or a child of `target`, set up plugin
+if in_directory('~/.zettelkasten/') then
 
-return M
+    local to_load = {
+        'slipbox.assets',
+    }
+    local M = {}
+
+    -- load all dependencies in `to_load` into the module
+    for _, tbl in ipairs(to_load) do
+        local t = require(tbl)
+        for k, v in pairs(t) do
+            M[k] = v
+        end
+    end
+
+    -- set up keymappings
+    require('slipbox.keymap').setup(M)
+
+    return M
+end
+
